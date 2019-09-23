@@ -1,0 +1,19 @@
+" File:        plugin/flap.vim
+" Author:      Akinori Hattori <hattya@gmail.com>
+" Last Change: 2019-09-23
+" License:     MIT License
+
+if exists('g:loaded_flap')
+  finish
+endif
+let g:loaded_flap = 1
+
+let s:save_cpo = &cpo
+set cpo&vim
+
+nnoremap <silent> <Plug>(flap-inc) :<C-U>call flap#ninc(v:count1)<CR>
+
+nnoremap <silent> <Plug>(flap-dec) :<C-U>call flap#ndec(v:count1)<CR>
+
+let &cpo = s:save_cpo
+unlet s:save_cpo

@@ -1,0 +1,12 @@
+let s:assert = themis#helper('assert')
+call themis#helper('command').with(s:assert)
+
+function! s:join(...) abort
+  return join(a:000, has('win32') ? '\' : '/')
+endfunction
+
+if $PROFILE !=# ''
+  execute 'profile start' $PROFILE
+  execute 'profile! file' s:join('.', 'autoload', '*')
+  execute 'profile! file' s:join('.', 'plugin', '*')
+endif

@@ -1,0 +1,4 @@
+*.html
+*.sw?
+.coverage_*
+profile.txt
