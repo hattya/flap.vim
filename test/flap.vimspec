@@ -87,6 +87,210 @@ Describe CTRL-A
   End
 End
 
+Describe {Visual}CTRL-A
+  Before each
+    new
+    let b:flap = deepcopy(s:flap)
+    vmap <buffer> <C-A> <Plug>(flap-inc)
+    only!
+  End
+
+  It increments by a rule in v
+    call setline(1, 'bar foo baz')
+    call setline(2, '  0   3   3')
+    call setline(3, 'Thu Mon Tue')
+
+    call cursor(1, 1)
+    execute "normal vG$\<C-A>"
+    Assert Equals(getline(1), 'baz foo baz')
+    Assert Equals(getline(2), '  1   3   3')
+    Assert Equals(getline(3), 'Fri Mon Tue')
+    Assert Equals(getpos('.'),  [0, 1, 1, 0])
+    Assert Equals(getpos("'["), [0, 1, 1, 0])
+    Assert Equals(getpos("']"), [0, 3, 3, 0])
+
+    call cursor(1, 5)
+    execute "normal vG$\<C-A>"
+    Assert Equals(getline(1), 'baz bar baz')
+    Assert Equals(getline(2), '  2   3   3')
+    Assert Equals(getline(3), 'Sat Mon Tue')
+    Assert Equals(getpos('.'),  [0, 1, 5, 0])
+    Assert Equals(getpos("'["), [0, 1, 5, 0])
+    Assert Equals(getpos("']"), [0, 3, 3, 0])
+
+    call cursor(1, 9)
+    execute "normal vG$\<C-A>"
+    Assert Equals(getline(1), 'baz bar foo')
+    Assert Equals(getline(2), '  3   3   3')
+    Assert Equals(getline(3), 'Sun Mon Tue')
+    Assert Equals(getpos('.'),  [0, 1, 9, 0])
+    Assert Equals(getpos("'["), [0, 1, 9, 0])
+    Assert Equals(getpos("']"), [0, 3, 3, 0])
+  End
+
+  It increments by a rule in V
+    call setline(1, 'baz bar foo')
+    call setline(2, '  0   3   3')
+    call setline(3, 'Thu Mon Tue')
+
+    call cursor(1, 1)
+    execute "normal VG\<C-A>"
+    Assert Equals(getline(1), 'foo bar foo')
+    Assert Equals(getline(2), '  1   3   3')
+    Assert Equals(getline(3), 'Fri Mon Tue')
+    Assert Equals(getpos('.'),  [0, 1, 1, 0])
+    Assert Equals(getpos("'["), [0, 1, 1, 0])
+    Assert Equals(getpos("']"), [0, 3, 3, 0])
+
+    call cursor(1, 5)
+    execute "normal VG\<C-A>"
+    Assert Equals(getline(1), 'bar bar foo')
+    Assert Equals(getline(2), '  2   3   3')
+    Assert Equals(getline(3), 'Sat Mon Tue')
+    Assert Equals(getpos('.'),  [0, 1, 1, 0])
+    Assert Equals(getpos("'["), [0, 1, 1, 0])
+    Assert Equals(getpos("']"), [0, 3, 3, 0])
+
+    call cursor(1, 9)
+    execute "normal VG\<C-A>"
+    Assert Equals(getline(1), 'baz bar foo')
+    Assert Equals(getline(2), '  3   3   3')
+    Assert Equals(getline(3), 'Sun Mon Tue')
+    Assert Equals(getpos('.'),  [0, 1, 1, 0])
+    Assert Equals(getpos("'["), [0, 1, 1, 0])
+    Assert Equals(getpos("']"), [0, 3, 3, 0])
+  End
+
+  It increments by a rule in CTRL-V
+    call setline(1, 'foo bar baz')
+    call setline(2, '  1   0   2')
+    call setline(3, 'Fri Fri Mon')
+
+    call cursor(1, 1)
+    execute "normal \<C-V>2l2j2\<C-A>"
+    Assert Equals(getline(1), 'baz bar baz')
+    Assert Equals(getline(2), '  3   0   2')
+    Assert Equals(getline(3), 'Sun Fri Mon')
+    Assert Equals(getpos('.'),  [0, 1, 1, 0])
+    Assert Equals(getpos("'["), [0, 1, 1, 0])
+    Assert Equals(getpos("']"), [0, 3, 3, 0])
+
+    call cursor(1, 5)
+    execute "normal \<C-V>2l2j3\<C-A>"
+    Assert Equals(getline(1), 'baz bar baz')
+    Assert Equals(getline(2), '  3   3   2')
+    Assert Equals(getline(3), 'Sun Mon Mon')
+    Assert Equals(getpos('.'),  [0, 1, 5, 0])
+    Assert Equals(getpos("'["), [0, 1, 5, 0])
+    Assert Equals(getpos("']"), [0, 3, 7, 0])
+
+    call cursor(1, 9)
+    execute "normal \<C-V>2l2j\<C-A>"
+    Assert Equals(getline(1), 'baz bar foo')
+    Assert Equals(getline(2), '  3   3   3')
+    Assert Equals(getline(3), 'Sun Mon Tue')
+    Assert Equals(getpos('.'),  [0, 1,  9, 0])
+    Assert Equals(getpos("'["), [0, 1,  9, 0])
+    Assert Equals(getpos("']"), [0, 3, 11, 0])
+  End
+
+  It increments by a shortest rule in v
+    call setline(1, repeat(['Monday'], 3))
+
+    call cursor(2, 1)
+    execute "normal v$6\<C-A>"
+    Assert Equals(getline(1, '$'), ['Monday', 'Sunday', 'Monday'])
+    Assert Equals(getpos('.'),  [0, 2, 1, 0])
+    Assert Equals(getpos("'["), [0, 2, 1, 0])
+    Assert Equals(getpos("']"), [0, 2, 3, 0])
+
+    try
+      set selection=exclusive
+      call cursor(2, 1)
+      execute "normal v\<C-A>v$2\<C-A>"
+    finally
+      set selection&vim
+    endtry
+    Assert Equals(getline(1, '$'), ['Monday', 'Tueday', 'Monday'])
+    Assert Equals(getpos('.'),  [0, 2, 1, 0])
+    Assert Equals(getpos("'["), [0, 2, 1, 0])
+    Assert Equals(getpos("']"), [0, 2, 3, 0])
+  End
+
+  It increments by a shortest rule in V
+    call setline(1, repeat(['Monday'], 3))
+
+    call cursor(2, 1)
+    execute "normal V$\<C-A>"
+    Assert Equals(getline(1, '$'), ['Monday', 'Tueday', 'Monday'])
+    Assert Equals(getpos('.'),  [0, 2, 1, 0])
+    Assert Equals(getpos("'["), [0, 2, 1, 0])
+    Assert Equals(getpos("']"), [0, 2, 3, 0])
+  End
+
+  It increments by a longest rule in CTRL-V
+    call setline(1, repeat(['Monday'], 3))
+
+    call cursor(2, 1)
+    execute "normal \<C-V>2l6\<C-A>"
+    Assert Equals(getline(1, '$'), ['Monday', 'Sunday', 'Monday'])
+    Assert Equals(getpos('.'),  [0, 2, 1, 0])
+    Assert Equals(getpos("'["), [0, 2, 1, 0])
+    Assert Equals(getpos("']"), [0, 2, 3, 0])
+
+    try
+      set selection=exclusive
+      call cursor(2, 1)
+      execute "normal \<C-V>\<C-A>\<C-V>$2\<C-A>"
+    finally
+      set selection&vim
+    endtry
+    Assert Equals(getline(1, '$'), ['Monday', 'Tuesday', 'Monday'])
+    Assert Equals(getpos('.'),  [0, 2, 1, 0])
+    Assert Equals(getpos("'["), [0, 2, 1, 0])
+    Assert Equals(getpos("']"), [0, 2, 7, 0])
+  End
+
+  It keeps '] as-is in v
+    call setline(1, 'foo bar baz')
+    call setline(2, '  1010101  ')
+
+    call cursor(1, 5)
+    execute "normal vG$\<C-A>"
+    Assert Equals(getline(1), 'foo baz baz')
+    Assert Equals(getline(2), '  1010102  ')
+    Assert Equals(getpos('.'),  [0, 1, 5, 0])
+    Assert Equals(getpos("'["), [0, 1, 5, 0])
+    Assert Equals(getpos("']"), [0, 2, 9, 0])
+  End
+
+  It keeps '] as-is in V
+    call setline(1, 'foo bar baz')
+    call setline(2, '  1010101  ')
+
+    call cursor(1, 5)
+    execute "normal VG\<C-A>"
+    Assert Equals(getline(1), 'bar bar baz')
+    Assert Equals(getline(2), '  1010102  ')
+    Assert Equals(getpos('.'),  [0, 1, 1, 0])
+    Assert Equals(getpos("'["), [0, 1, 1, 0])
+    Assert Equals(getpos("']"), [0, 2, 9, 0])
+  End
+
+  It keeps '] as-is in CTRL-V
+    call setline(1, 'foo bar baz')
+    call setline(2, '  1010101  ')
+
+    call cursor(1, 5)
+    execute "normal \<C-V>2lj\<C-A>"
+    Assert Equals(getline(1), 'foo baz baz')
+    Assert Equals(getline(2), '  1010201  ')
+    Assert Equals(getpos('.'),  [0, 1, 5, 0])
+    Assert Equals(getpos("'["), [0, 1, 5, 0])
+    Assert Equals(getpos("']"), [0, 2, 7, 0])
+  End
+End
+
 Describe CTRL-X
   Before each
     new
@@ -165,5 +369,209 @@ Describe CTRL-X
     let b:flap.rules += [[0]]
 
     Throws /^invalid rule: / :execute "normal \<C-X>"
+  End
+End
+
+Describe {Visual}CTRL-X
+  Before each
+    new
+    let b:flap = deepcopy(s:flap)
+    vmap <buffer> <C-X> <Plug>(flap-dec)
+    only!
+  End
+
+  It decrements by a rule in v
+    call setline(1, 'foo baz bar')
+    call setline(2, '  6   2   1')
+    call setline(3, 'Wed Mon Tue')
+
+    call cursor(1, 1)
+    execute "normal vG$\<C-X>"
+    Assert Equals(getline(1), 'baz baz bar')
+    Assert Equals(getline(2), '  5   2   1')
+    Assert Equals(getline(3), 'Tue Mon Tue')
+    Assert Equals(getpos('.'),  [0, 1, 1, 0])
+    Assert Equals(getpos("'["), [0, 1, 1, 0])
+    Assert Equals(getpos("']"), [0, 3, 3, 0])
+
+    call cursor(1, 5)
+    execute "normal vG$\<C-X>"
+    Assert Equals(getline(1), 'baz bar bar')
+    Assert Equals(getline(2), '  4   2   1')
+    Assert Equals(getline(3), 'Mon Mon Tue')
+    Assert Equals(getpos('.'),  [0, 1, 5, 0])
+    Assert Equals(getpos("'["), [0, 1, 5, 0])
+    Assert Equals(getpos("']"), [0, 3, 3, 0])
+
+    call cursor(1, 9)
+    execute "normal vG$\<C-X>"
+    Assert Equals(getline(1), 'baz bar foo')
+    Assert Equals(getline(2), '  3   2   1')
+    Assert Equals(getline(3), 'Sun Mon Tue')
+    Assert Equals(getpos('.'),  [0, 1, 9, 0])
+    Assert Equals(getpos("'["), [0, 1, 9, 0])
+    Assert Equals(getpos("']"), [0, 3, 3, 0])
+  End
+
+  It decrements by a rule in V
+    call setline(1, 'foo bar baz')
+    call setline(2, '  6   2   1')
+    call setline(3, 'Wed Mon Tue')
+
+    call cursor(1, 1)
+    execute "normal VG\<C-X>"
+    Assert Equals(getline(1), 'baz bar baz')
+    Assert Equals(getline(2), '  5   2   1')
+    Assert Equals(getline(3), 'Tue Mon Tue')
+    Assert Equals(getpos('.'),  [0, 1, 1, 0])
+    Assert Equals(getpos("'["), [0, 1, 1, 0])
+    Assert Equals(getpos("']"), [0, 3, 3, 0])
+
+    call cursor(1, 5)
+    execute "normal VG\<C-X>"
+    Assert Equals(getline(1), 'bar bar baz')
+    Assert Equals(getline(2), '  4   2   1')
+    Assert Equals(getline(3), 'Mon Mon Tue')
+    Assert Equals(getpos('.'),  [0, 1, 1, 0])
+    Assert Equals(getpos("'["), [0, 1, 1, 0])
+    Assert Equals(getpos("']"), [0, 3, 3, 0])
+
+    call cursor(1, 9)
+    execute "normal VG\<C-X>"
+    Assert Equals(getline(1), 'foo bar baz')
+    Assert Equals(getline(2), '  3   2   1')
+    Assert Equals(getline(3), 'Sun Mon Tue')
+    Assert Equals(getpos('.'),  [0, 1, 1, 0])
+    Assert Equals(getpos("'["), [0, 1, 1, 0])
+    Assert Equals(getpos("']"), [0, 3, 3, 0])
+  End
+
+  It decrements by a rule in CTRL-V
+    call setline(1, 'foo bar baz')
+    call setline(2, '  1   3   2')
+    call setline(3, 'Mon Thu Thu')
+
+    call cursor(1, 1)
+    execute "normal \<C-V>2l2j\<C-X>"
+    Assert Equals(getline(1), 'baz bar baz')
+    Assert Equals(getline(2), '  0   3   2')
+    Assert Equals(getline(3), 'Sun Thu Thu')
+    Assert Equals(getpos('.'),  [0, 1, 1, 0])
+    Assert Equals(getpos("'["), [0, 1, 1, 0])
+    Assert Equals(getpos("']"), [0, 3, 3, 0])
+
+    call cursor(1, 5)
+    execute "normal \<C-V>2l2j3\<C-X>"
+    Assert Equals(getline(1), 'baz bar baz')
+    Assert Equals(getline(2), '  0   0   2')
+    Assert Equals(getline(3), 'Sun Mon Thu')
+    Assert Equals(getpos('.'),  [0, 1, 5, 0])
+    Assert Equals(getpos("'["), [0, 1, 5, 0])
+    Assert Equals(getpos("']"), [0, 3, 7, 0])
+
+    call cursor(1, 9)
+    execute "normal \<C-V>2l2j2\<C-X>"
+    Assert Equals(getline(1), 'baz bar foo')
+    Assert Equals(getline(2), '  0   0   0')
+    Assert Equals(getline(3), 'Sun Mon Tue')
+    Assert Equals(getpos('.'),  [0, 1,  9, 0])
+    Assert Equals(getpos("'["), [0, 1,  9, 0])
+    Assert Equals(getpos("']"), [0, 3, 11, 0])
+  End
+
+  It decrements by a shortest rule in v
+    call setline(1, repeat(['Monday'], 3))
+
+    call cursor(2, 1)
+    execute "normal v$\<C-X>"
+    Assert Equals(getline(1, '$'), ['Monday', 'Sunday', 'Monday'])
+    Assert Equals(getpos('.'),  [0, 2, 1, 0])
+    Assert Equals(getpos("'["), [0, 2, 1, 0])
+    Assert Equals(getpos("']"), [0, 2, 3, 0])
+
+    try
+      set selection=exclusive
+      call cursor(2, 1)
+      execute "normal v\<C-X>v$5\<C-X>"
+    finally
+      set selection&vim
+    endtry
+    Assert Equals(getline(1, '$'), ['Monday', 'Tueday', 'Monday'])
+    Assert Equals(getpos('.'),  [0, 2, 1, 0])
+    Assert Equals(getpos("'["), [0, 2, 1, 0])
+    Assert Equals(getpos("']"), [0, 2, 3, 0])
+  End
+
+  It decrements by a shortest rule in V
+    call setline(1, repeat(['Monday'], 3))
+
+    call cursor(2, 1)
+    execute "normal V$6\<C-X>"
+    Assert Equals(getline(1, '$'), ['Monday', 'Tueday', 'Monday'])
+    Assert Equals(getpos('.'),  [0, 2, 1, 0])
+    Assert Equals(getpos("'["), [0, 2, 1, 0])
+    Assert Equals(getpos("']"), [0, 2, 3, 0])
+  End
+
+  It decrements by a longest rule in CTRL-V
+    call setline(1, repeat(['Monday'], 3))
+
+    call cursor(2, 1)
+    execute "normal \<C-V>2l\<C-X>"
+    Assert Equals(getline(1, '$'), ['Monday', 'Sunday', 'Monday'])
+    Assert Equals(getpos('.'),  [0, 2, 1, 0])
+    Assert Equals(getpos("'["), [0, 2, 1, 0])
+    Assert Equals(getpos("']"), [0, 2, 3, 0])
+
+    try
+      set selection=exclusive
+      call cursor(2, 1)
+      execute "normal \<C-V>\<C-X>\<C-V>$5\<C-X>"
+    finally
+      set selection&vim
+    endtry
+    Assert Equals(getline(1, '$'), ['Monday', 'Tuesday', 'Monday'])
+    Assert Equals(getpos('.'),  [0, 2, 1, 0])
+    Assert Equals(getpos("'["), [0, 2, 1, 0])
+    Assert Equals(getpos("']"), [0, 2, 7, 0])
+  End
+
+  It keeps '] as-is in v
+    call setline(1, 'foo bar baz')
+    call setline(2, '  1010101  ')
+
+    call cursor(1, 5)
+    execute "normal vG$\<C-X>"
+    Assert Equals(getline(1), 'foo foo baz')
+    Assert Equals(getline(2), '  1010100  ')
+    Assert Equals(getpos('.'),  [0, 1, 5, 0])
+    Assert Equals(getpos("'["), [0, 1, 5, 0])
+    Assert Equals(getpos("']"), [0, 2, 9, 0])
+  End
+
+  It keeps '] as-is in V
+    call setline(1, 'foo bar baz')
+    call setline(2, '  1010101  ')
+
+    call cursor(1, 5)
+    execute "normal VG\<C-X>"
+    Assert Equals(getline(1), 'baz bar baz')
+    Assert Equals(getline(2), '  1010100  ')
+    Assert Equals(getpos('.'),  [0, 1, 1, 0])
+    Assert Equals(getpos("'["), [0, 1, 1, 0])
+    Assert Equals(getpos("']"), [0, 2, 9, 0])
+  End
+
+  It keeps '] as-is in CTRL-V
+    call setline(1, 'foo bar baz')
+    call setline(2, '  1010101  ')
+
+    call cursor(1, 5)
+    execute "normal \<C-V>2lj\<C-X>"
+    Assert Equals(getline(1), 'foo foo baz')
+    Assert Equals(getline(2), '  1010001  ')
+    Assert Equals(getpos('.'),  [0, 1, 5, 0])
+    Assert Equals(getpos("'["), [0, 1, 5, 0])
+    Assert Equals(getpos("']"), [0, 2, 7, 0])
   End
 End

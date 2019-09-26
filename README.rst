@@ -45,8 +45,10 @@ Usage
 .. code:: vim
 
    nmap <C-A> <Plug>(flap-inc)
+   vmap <C-A> <Plug>(flap-inc)
 
    nmap <C-X> <Plug>(flap-dec)
+   vmap <C-X> <Plug>(flap-dec)
 
 
 Testing
