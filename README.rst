@@ -44,11 +44,13 @@ Usage
 
 .. code:: vim
 
-   nmap <C-A> <Plug>(flap-inc)
-   vmap <C-A> <Plug>(flap-inc)
+   nmap  <C-A> <Plug>(flap-inc)
+   vmap  <C-A> <Plug>(flap-inc)
+   vmap g<C-A> <Plug>(flap-inc-g)
 
-   nmap <C-X> <Plug>(flap-dec)
-   vmap <C-X> <Plug>(flap-dec)
+   nmap  <C-X> <Plug>(flap-dec)
+   vmap  <C-X> <Plug>(flap-dec)
+   vmap g<C-X> <Plug>(flap-dec-g)
 
 
 Testing

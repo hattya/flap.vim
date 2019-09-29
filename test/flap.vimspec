@@ -291,6 +291,57 @@ Describe {Visual}CTRL-A
   End
 End
 
+Describe {Visual}g CTRL-A
+  Before each
+    new
+    let b:flap = deepcopy(s:flap)
+    vmap <buffer> g<C-A> <Plug>(flap-inc-g)
+    only!
+  End
+
+  It increments by a rule in v
+    call setline(1, ['foo', '', '1', '', 'Sun'])
+
+    call cursor(1, 1)
+    execute "normal vG$g\<C-A>"
+    Assert Equals(getline(1, '$'), ['bar', '', '3', '', 'Wed'])
+    Assert Equals(getpos('.'),  [0, 1, 1, 0])
+    Assert Equals(getpos("'["), [0, 1, 1, 0])
+    Assert Equals(getpos("']"), [0, 5, 3, 0])
+    Assert Equals(visualmode(), 'v')
+    Assert Equals(getpos("'<"), [0, 1, 1, 0])
+    Assert Equals(getpos("'>"), [0, 5, 4, 0])
+  End
+
+  It increments by a rule in V
+    call setline(1, ['foo', '', '1', '', 'Sun'])
+
+    call cursor(1, 1)
+    execute "normal VGg\<C-A>"
+    Assert Equals(getline(1, '$'), ['bar', '', '3', '', 'Wed'])
+    Assert Equals(getpos('.'),  [0, 1, 1, 0])
+    Assert Equals(getpos("'["), [0, 1, 1, 0])
+    Assert Equals(getpos("']"), [0, 5, 3, 0])
+    Assert Equals(visualmode(), 'V')
+    Assert Equals(getpos("'<"), [0, 1, 1, 0])
+    Assert Equals(getpos("'>")[:1],   [0, 5])
+  End
+
+  It increments by a rule in CTRL-V
+    call setline(1, ['foo', '', '1', '', 'Sun'])
+
+    call cursor(1, 1)
+    execute "normal \<C-V>G$g\<C-A>"
+    Assert Equals(getline(1, '$'), ['bar', '', '3', '', 'Wed'])
+    Assert Equals(getpos('.'),  [0, 1, 1, 0])
+    Assert Equals(getpos("'["), [0, 1, 1, 0])
+    Assert Equals(getpos("']"), [0, 5, 3, 0])
+    Assert Equals(visualmode(), "\<C-V>")
+    Assert Equals(getpos("'<"), [0, 1, 1, 0])
+    Assert Equals(getpos("'>"), [0, 5, 4, 0])
+  End
+End
+
 Describe CTRL-X
   Before each
     new
@@ -573,5 +624,56 @@ Describe {Visual}CTRL-X
     Assert Equals(getpos('.'),  [0, 1, 5, 0])
     Assert Equals(getpos("'["), [0, 1, 5, 0])
     Assert Equals(getpos("']"), [0, 2, 7, 0])
+  End
+End
+
+Describe {Visual}g CTRL-X
+  Before each
+    new
+    let b:flap = deepcopy(s:flap)
+    vmap <buffer> g<C-X> <Plug>(flap-dec-g)
+    only!
+  End
+
+  It decrements by a rule in v
+    call setline(1, ['baz', '', '5', '', 'Sat'])
+
+    call cursor(1, 1)
+    execute "normal vG$g\<C-X>"
+    Assert Equals(getline(1, '$'), ['bar', '', '3', '', 'Wed'])
+    Assert Equals(getpos('.'),  [0, 1, 1, 0])
+    Assert Equals(getpos("'["), [0, 1, 1, 0])
+    Assert Equals(getpos("']"), [0, 5, 3, 0])
+    Assert Equals(visualmode(), 'v')
+    Assert Equals(getpos("'<"), [0, 1, 1, 0])
+    Assert Equals(getpos("'>"), [0, 5, 4, 0])
+  End
+
+  It decrements by a rule in V
+    call setline(1, ['baz', '', '5', '', 'Sat'])
+
+    call cursor(1, 1)
+    execute "normal VGg\<C-X>"
+    Assert Equals(getline(1, '$'), ['bar', '', '3', '', 'Wed'])
+    Assert Equals(getpos('.'),  [0, 1, 1, 0])
+    Assert Equals(getpos("'["), [0, 1, 1, 0])
+    Assert Equals(getpos("']"), [0, 5, 3, 0])
+    Assert Equals(visualmode(), 'V')
+    Assert Equals(getpos("'<"), [0, 1, 1, 0])
+    Assert Equals(getpos("'>")[:1],   [0, 5])
+  End
+
+  It decrements by a rule in CTRL-V
+    call setline(1, ['baz', '', '5', '', 'Sat'])
+
+    call cursor(1, 1)
+    execute "normal \<C-V>G$g\<C-X>"
+    Assert Equals(getline(1, '$'), ['bar', '', '3', '', 'Wed'])
+    Assert Equals(getpos('.'),  [0, 1, 1, 0])
+    Assert Equals(getpos("'["), [0, 1, 1, 0])
+    Assert Equals(getpos("']"), [0, 5, 3, 0])
+    Assert Equals(visualmode(), "\<C-V>")
+    Assert Equals(getpos("'<"), [0, 1, 1, 0])
+    Assert Equals(getpos("'>"), [0, 5, 4, 0])
   End
 End

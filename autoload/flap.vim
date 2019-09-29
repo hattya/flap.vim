@@ -1,6 +1,6 @@
 " File:        autoload/flap.vim
 " Author:      Akinori Hattori <hattya@gmail.com>
-" Last Change: 2019-09-26
+" Last Change: 2019-09-29
 " License:     MIT License
 
 let s:save_cpo = &cpo
@@ -89,22 +89,43 @@ function! s:vflap(count, g) abort
     endif
   endif
 
-  execute printf('normal! %d%s%s', abs(a:count), a:g ? 'g' : '', a:count >= 0 ? "\<C-A>" : "\<C-X>")
+  let key = a:count >= 0 ? "\<C-A>" : "\<C-X>"
   if !empty(cl)
+    " save
+    let visual = [mode(), getpos("'<"), getpos("'>")]
+    execute "normal! \<Esc>"
+
+    call setpos("']", repeat([0], 4))
     let lnum = lhs[1]
+    let start = lhs[2] - 1
+    let i = 1
     while lnum <= rhs[1]
       if has_key(cl, lnum)
         let [l, best] = cl[lnum]
-        let v = s:setline(lnum, l, best, a:count)
+        let v = s:setline(lnum, l, best, a:count * i)
         let rhs[2] = start + len(v)
+        let i += !!a:g
+      elseif col([lnum, '$']) > 1
+        call cursor(lnum, start + 1)
+        execute printf("normal! v0%dl%d%s", end - 1, abs(a:count * i), key)
+        let i += a:g && getpos("']")[1] == lnum
       endif
       let lnum += 1
+      if visual[0] ==# 'v'
+        let start = 0
+      endif
     endwhile
     call setpos('.', lhs)
     call setpos("'[", lhs)
     if has_key(cl, rhs[1])
       call setpos("']", rhs)
     endif
+    " restore
+    execute printf("normal! %s\<Esc>", visual[0])
+    call setpos("'<", visual[1])
+    call setpos("'>", visual[2])
+  else
+    execute printf('normal! %d%s%s', abs(a:count), a:g ? 'g' : '', key)
   endif
 endfunction
 
