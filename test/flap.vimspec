@@ -3,6 +3,9 @@ let s:flap = {
 \    ['foo', 'bar', 'baz'],
 \    ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
 \    ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+\    [{'pattern': '\[''\(\k\+\)''\]', 'replace': '[''\1'']'},
+\     {'pattern': '\["\(\k\+\)"\]',   'replace': '["\1"]'},
+\     {'pattern': '\.\(\k\+\)',       'replace': '.\1'}],
 \  ],
 \}
 
@@ -68,6 +71,21 @@ Describe CTRL-A
     Assert Equals(getline('.'), 'Tuesday')
     Assert Equals(getpos("'["), [0, 1, 1, 0])
     Assert Equals(getpos("']"), [0, 1, 7, 0])
+  End
+
+  It increments by a regexp rule
+    call setline(1, "echo dict['key']")
+
+    call cursor(1, 10)
+    execute "normal 2\<C-A>"
+    Assert Equals(getline('.'), 'echo dict.key')
+    Assert Equals(getpos("'["), [0, 1, 10, 0])
+    Assert Equals(getpos("']"), [0, 1, 13, 0])
+
+    execute "normal 5\<C-A>"
+    Assert Equals(getline('.'), 'echo dict["key"]')
+    Assert Equals(getpos("'["), [0, 1, 10, 0])
+    Assert Equals(getpos("']"), [0, 1, 16, 0])
   End
 
   It falls back to default
@@ -404,6 +422,21 @@ Describe CTRL-X
     Assert Equals(getline('.'), 'Tuesday')
     Assert Equals(getpos("'["), [0, 1, 1, 0])
     Assert Equals(getpos("']"), [0, 1, 7, 0])
+  End
+
+  It decrements by a regexp rule
+    call setline(1, "echo dict['key']")
+
+    call cursor(1, 10)
+    execute "normal 4\<C-X>"
+    Assert Equals(getline('.'), 'echo dict.key')
+    Assert Equals(getpos("'["), [0, 1, 10, 0])
+    Assert Equals(getpos("']"), [0, 1, 13, 0])
+
+    execute "normal \<C-X>"
+    Assert Equals(getline('.'), 'echo dict["key"]')
+    Assert Equals(getpos("'["), [0, 1, 10, 0])
+    Assert Equals(getpos("']"), [0, 1, 16, 0])
   End
 
   It falls back to default

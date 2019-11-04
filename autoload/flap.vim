@@ -1,6 +1,6 @@
 " File:        autoload/flap.vim
 " Author:      Akinori Hattori <hattya@gmail.com>
-" Last Change: 2019-09-29
+" Last Change: 2019-11-04
 " License:     MIT License
 
 let s:save_cpo = &cpo
@@ -158,6 +158,8 @@ function! s:match(s, rule, start, end) abort
   for v in a:rule
     if type(v) is v:t_string
       let pat .= escape(v, '\')
+    elseif type(v) is v:t_dict
+      let pat .= '\m\%(' . v.pattern . '\)\V'
     else
       throw 'invalid rule: ' . string(a:rule)
     endif
@@ -174,7 +176,11 @@ function! s:match(s, rule, start, end) abort
     elseif m[1] <= a:start && a:start < m[2] && m[2] <= a:end
       let i = 0
       for v in a:rule
-        let pat = '\V\C' . escape(v, '\')
+        if type(v) is v:t_string
+          let pat = '\V\C' . escape(v, '\')
+        else
+          let pat = '\C' . v.pattern
+        endif
         let x = matchstrpos(a:s, pat, m[1])
         if x[1] <= a:start && a:start < x[2] && x[2] <= a:end && s:cmp(x, rv[1]) < 0
           let rv = [i, x]
@@ -208,6 +214,9 @@ endfunction
 function! s:setline(lnum, s, best, count) abort
   let n = len(a:best.rule)
   let v = a:best.rule[(n+a:count+a:best.index)%n]
+  if type(v) is v:t_dict
+    let v = substitute(a:best.match[0], '\C' . a:best.rule[a:best.index].pattern, v.replace, '')
+  endif
   call setline(a:lnum, (a:best.match[1] > 0 ? a:s[: a:best.match[1]-1] : '') . v . a:s[a:best.match[2] :])
   return v
 endfunction
