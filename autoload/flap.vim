@@ -212,10 +212,14 @@ function! s:cmp(a, b) abort
 endfunction
 
 function! s:setline(lnum, s, best, count) abort
-  let n = len(a:best.rule)
-  let v = a:best.rule[(n+a:count+a:best.index)%n]
-  if type(v) is v:t_dict
-    let v = substitute(a:best.match[0], '\C' . a:best.rule[a:best.index].pattern, v.replace, '')
+  if type(a:best.rule[a:best.index]) is v:t_dict && type(a:best.rule[a:best.index].replace) is v:t_func
+    let v = a:best.rule[a:best.index].replace(a:best.rule[a:best.index], a:best.match, a:count)
+  else
+    let n = len(a:best.rule)
+    let v = a:best.rule[(n+a:count+a:best.index)%n]
+    if type(v) is v:t_dict
+      let v = substitute(a:best.match[0], '\C' . a:best.rule[a:best.index].pattern, v.replace, '')
+    endif
   endif
   call setline(a:lnum, (a:best.match[1] > 0 ? a:s[: a:best.match[1]-1] : '') . v . a:s[a:best.match[2] :])
   return v

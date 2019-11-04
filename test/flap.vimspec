@@ -1,3 +1,10 @@
+function! s:time(rule, match, count) abort
+  let t = split(a:match[0], ':')
+  let i = col('.') <= 2 ? 0 : col('.') <= 4 ? 1 : 2
+  let t[i] = str2nr(t[i]) + a:count
+  return call('printf', ['%02d:%02d:%02d'] + t)
+endfunction
+
 let s:flap = {
 \  'rules': [
 \    ['foo', 'bar', 'baz'],
@@ -6,6 +13,7 @@ let s:flap = {
 \    [{'pattern': '\[''\(\k\+\)''\]', 'replace': '[''\1'']'},
 \     {'pattern': '\["\(\k\+\)"\]',   'replace': '["\1"]'},
 \     {'pattern': '\.\(\k\+\)',       'replace': '.\1'}],
+\    [{'pattern': '[0-2]\d:[0-5]\d:[0-5]\d', 'replace': function('s:time')}],
 \  ],
 \}
 
@@ -86,6 +94,28 @@ Describe CTRL-A
     Assert Equals(getline('.'), 'echo dict["key"]')
     Assert Equals(getpos("'["), [0, 1, 10, 0])
     Assert Equals(getpos("']"), [0, 1, 16, 0])
+  End
+
+  It increments by a funcref rule
+    call setline(1, '00:00:00')
+
+    call cursor(1, 1)
+    execute "normal \<C-A>"
+    Assert Equals(getline('.'), '01:00:00')
+    Assert Equals(getpos("'["), [0, 1, 1, 0])
+    Assert Equals(getpos("']"), [0, 1, 8, 0])
+
+    call cursor(1, 4)
+    execute "normal 22\<C-A>"
+    Assert Equals(getline('.'), '01:22:00')
+    Assert Equals(getpos("'["), [0, 1, 1, 0])
+    Assert Equals(getpos("']"), [0, 1, 8, 0])
+
+    call cursor(1, 7)
+    execute "normal 10\<C-A>"
+    Assert Equals(getline('.'), '01:22:10')
+    Assert Equals(getpos("'["), [0, 1, 1, 0])
+    Assert Equals(getpos("']"), [0, 1, 8, 0])
   End
 
   It falls back to default
@@ -437,6 +467,28 @@ Describe CTRL-X
     Assert Equals(getline('.'), 'echo dict["key"]')
     Assert Equals(getpos("'["), [0, 1, 10, 0])
     Assert Equals(getpos("']"), [0, 1, 16, 0])
+  End
+
+  It decrements by a funcref rule
+    call setline(1, '23:59:59')
+
+    call cursor(1, 1)
+    execute "normal 22\<C-X>"
+    Assert Equals(getline('.'), '01:59:59')
+    Assert Equals(getpos("'["), [0, 1, 1, 0])
+    Assert Equals(getpos("']"), [0, 1, 8, 0])
+
+    call cursor(1, 4)
+    execute "normal 37\<C-X>"
+    Assert Equals(getline('.'), '01:22:59')
+    Assert Equals(getpos("'["), [0, 1, 1, 0])
+    Assert Equals(getpos("']"), [0, 1, 8, 0])
+
+    call cursor(1, 7)
+    execute "normal 49\<C-X>"
+    Assert Equals(getline('.'), '01:22:10')
+    Assert Equals(getpos("'["), [0, 1, 1, 0])
+    Assert Equals(getpos("']"), [0, 1, 8, 0])
   End
 
   It falls back to default
