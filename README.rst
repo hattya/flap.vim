@@ -4,16 +4,12 @@ flap.vim
 flap.vim is a Vim plugin to extend ``CTRL-A`` and ``CTRL-X`` by user defined
 rules.
 
+.. image:: https://img.shields.io/badge/doc-:h%20flap.txt-blue.svg
+   :target: doc/flap.txt
+
 
 Installation
 ------------
-
-pathogen.vim_
-
-.. code:: console
-
-   $ cd ~/.vim/bundle
-   $ git clone https://github.com/hattya/flap.vim
 
 Vundle_
 
@@ -33,10 +29,15 @@ dein.vim_
 
    call dein#add('hattya/flap.vim')
 
-.. _pathogen.vim: https://github.com/tpope/vim-pathogen
 .. _Vundle: https://github.com/VundleVim/Vundle.vim
 .. _vim-plug: https://github.com/junegunn/vim-plug
 .. _dein.vim: https://github.com/Shougo/dein.vim
+
+
+Requirements
+------------
+
+- Vim 8.0+
 
 
 Usage
