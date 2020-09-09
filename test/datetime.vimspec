@@ -1,0 +1,120 @@
+Describe datetime
+  Before each
+    new
+    let b:flap = {
+    \  'rules': [],
+    \}
+    nmap <buffer> <C-A> <Plug>(flap-inc)
+    nmap <buffer> <C-X> <Plug>(flap-dec)
+    only!
+  End
+
+  It increments/decrements '%H:%M:%S'
+    let b:flap.rules += [flap#datetime#rule('%H:%M:%S')]
+    call setline(1, '00:11:22')
+
+    call cursor(1, 1)
+    execute "normal 2\<C-A>"
+    Assert Equals(getline(1), '02:11:22')
+    Assert Equals(getpos("'["), [0, 1, 1, 0])
+    Assert Equals(getpos("']"), [0, 1, 8, 0])
+    execute "normal 4\<C-X>"
+    Assert Equals(getline(1), '22:11:22')
+    Assert Equals(getpos("'["), [0, 1, 1, 0])
+    Assert Equals(getpos("']"), [0, 1, 8, 0])
+
+    call cursor(1, 4)
+    execute "normal 49\<C-A>"
+    Assert Equals(getline(1), '23:00:22')
+    Assert Equals(getpos("'["), [0, 1, 1, 0])
+    Assert Equals(getpos("']"), [0, 1, 8, 0])
+    execute "normal 27\<C-X>"
+    Assert Equals(getline(1), '22:33:22')
+    Assert Equals(getpos("'["), [0, 1, 1, 0])
+    Assert Equals(getpos("']"), [0, 1, 8, 0])
+
+    call cursor(1, 7)
+    execute "normal 38\<C-A>"
+    Assert Equals(getline(1), '22:34:00')
+    Assert Equals(getpos("'["), [0, 1, 1, 0])
+    Assert Equals(getpos("']"), [0, 1, 8, 0])
+    execute "normal 16\<C-X>"
+    Assert Equals(getline(1), '22:33:44')
+    Assert Equals(getpos("'["), [0, 1, 1, 0])
+    Assert Equals(getpos("']"), [0, 1, 8, 0])
+  End
+
+  It increments/decrements '%I:%M %p'
+    let b:flap.rules += [flap#datetime#rule('%I:%M %p')]
+    call setline(1, '03:00 PM')
+
+    call cursor(1, 1)
+    execute "normal 9\<C-A>"
+    Assert Equals(getline(1), '12:00 AM')
+    Assert Equals(getpos("'["), [0, 1, 1, 0])
+    Assert Equals(getpos("']"), [0, 1, 8, 0])
+    execute "normal 12\<C-X>"
+    Assert Equals(getline(1), '12:00 PM')
+    Assert Equals(getpos("'["), [0, 1, 1, 0])
+    Assert Equals(getpos("']"), [0, 1, 8, 0])
+
+    call cursor(1, 4)
+    execute "normal 90\<C-A>"
+    Assert Equals(getline(1), '01:30 PM')
+    Assert Equals(getpos("'["), [0, 1, 1, 0])
+    Assert Equals(getpos("']"), [0, 1, 8, 0])
+    execute "normal 40\<C-X>"
+    Assert Equals(getline(1), '12:50 PM')
+    Assert Equals(getpos("'["), [0, 1, 1, 0])
+    Assert Equals(getpos("']"), [0, 1, 8, 0])
+
+    call cursor(1, 7)
+    execute "normal 17\<C-A>"
+    Assert Equals(getline(1), '05:50 AM')
+    Assert Equals(getpos("'["), [0, 1, 1, 0])
+    Assert Equals(getpos("']"), [0, 1, 8, 0])
+    execute "normal 3\<C-X>"
+    Assert Equals(getline(1), '02:50 AM')
+    Assert Equals(getpos("'["), [0, 1, 1, 0])
+    Assert Equals(getpos("']"), [0, 1, 8, 0])
+  End
+
+  It increments/decrements '%Hh %% %Mm %% %Ss'
+    let b:flap.rules += [flap#datetime#rule('%Hh %% %Mm %% %Ss')]
+    call setline(1, '00h % 00m % 00s')
+
+    call cursor(1, 1)
+    execute "normal 7\<C-A>"
+    Assert Equals(getline(1), '07h % 00m % 00s')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 15, 0])
+    execute "normal 19\<C-X>"
+    Assert Equals(getline(1), '12h % 00m % 00s')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 15, 0])
+
+    call cursor(1, 5)
+    execute "normal 63\<C-A>"
+    Assert Equals(getline(1), '13h % 03m % 00s')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 15, 0])
+    execute "normal 30\<C-X>"
+    Assert Equals(getline(1), '12h % 33m % 00s')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 15, 0])
+
+    call cursor(1, 11)
+    execute "normal 67\<C-A>"
+    Assert Equals(getline(1), '12h % 34m % 07s')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 15, 0])
+    execute "normal 46\<C-X>"
+    Assert Equals(getline(1), '12h % 33m % 21s')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 15, 0])
+  End
+
+  It throws an exception when the specified format is invalid
+    Throws /^flap: datetime:.*'%!'$/ flap#datetime#rule('%!')
+  End
+End
