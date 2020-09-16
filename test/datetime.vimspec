@@ -9,6 +9,226 @@ Describe datetime
     only!
   End
 
+  It increments/decrements '%a, %d %b %Y %H:%M:%S %z'
+    let b:flap.rules += [flap#datetime#rule('%a, %d %b %Y %H:%M:%S %z')]
+    call setline(1, 'Mon, 02 Jan 2006 15:04:05 -0700')
+
+    call cursor(1, 1)
+    execute "normal 9\<C-A>"
+    Assert Equals(getline(1), 'Wed, 11 Jan 2006 15:04:05 -0700')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 31, 0])
+    execute "normal 11\<C-X>"
+    Assert Equals(getline(1), 'Sat, 31 Dec 2005 15:04:05 -0700')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 31, 0])
+
+    call cursor(1, 6)
+    execute "normal 32\<C-A>"
+    Assert Equals(getline(1), 'Wed, 01 Feb 2006 15:04:05 -0700')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 31, 0])
+    execute "normal 30\<C-X>"
+    Assert Equals(getline(1), 'Mon, 02 Jan 2006 15:04:05 -0700')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 31, 0])
+
+    call cursor(1, 9)
+    execute "normal 13\<C-A>"
+    Assert Equals(getline(1), 'Fri, 02 Feb 2007 15:04:05 -0700')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 31, 0])
+    execute "normal 25\<C-X>"
+    Assert Equals(getline(1), 'Sun, 02 Jan 2005 15:04:05 -0700')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 31, 0])
+
+    call cursor(1, 13)
+    execute "normal 5\<C-A>"
+    Assert Equals(getline(1), 'Sat, 02 Jan 2010 15:04:05 -0700')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 31, 0])
+    execute "normal 4\<C-X>"
+    Assert Equals(getline(1), 'Mon, 02 Jan 2006 15:04:05 -0700')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 31, 0])
+
+    call cursor(1, 18)
+    execute "normal 9\<C-A>"
+    Assert Equals(getline(1), 'Tue, 03 Jan 2006 00:04:05 -0700')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 31, 0])
+    execute "normal 10\<C-X>"
+    Assert Equals(getline(1), 'Mon, 02 Jan 2006 14:04:05 -0700')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 31, 0])
+
+    call cursor(1, 21)
+    execute "normal 70\<C-A>"
+    Assert Equals(getline(1), 'Mon, 02 Jan 2006 15:14:05 -0700')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 31, 0])
+    execute "normal 17\<C-X>"
+    Assert Equals(getline(1), 'Mon, 02 Jan 2006 14:57:05 -0700')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 31, 0])
+
+    call cursor(1, 24)
+    execute "normal 490\<C-A>"
+    Assert Equals(getline(1), 'Mon, 02 Jan 2006 15:05:15 -0700')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 31, 0])
+    execute "normal 70\<C-X>"
+    Assert Equals(getline(1), 'Mon, 02 Jan 2006 15:04:05 -0700')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 31, 0])
+
+    call cursor(1, 27)
+    execute "normal 44\<C-X>"
+    Assert Equals(getline(1), 'Mon, 02 Jan 2006 15:04:05 +0900')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 31, 0])
+    execute "normal 44\<C-A>"
+    Assert Equals(getline(1), 'Mon, 02 Jan 2006 15:04:05 -0700')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 31, 0])
+  End
+
+  It increments/decrements '%Y-%m-%dT%H:%M:%S%z'
+    let b:flap.rules += [flap#datetime#rule('%Y-%m-%dT%H:%M:%S%z')]
+    call setline(1, '2019-05-01T00:00:00+09:00')
+
+    call cursor(1, 1)
+    execute "normal 8\<C-A>"
+    Assert Equals(getline(1), '2027-05-01T00:00:00+09:00')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 25, 0])
+    execute "normal 2\<C-X>"
+    Assert Equals(getline(1), '2025-05-01T00:00:00+09:00')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 25, 0])
+
+    call cursor(1, 6)
+    execute "normal 5\<C-A>"
+    Assert Equals(getline(1), '2025-10-01T00:00:00+09:00')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 25, 0])
+    execute "normal 6\<C-X>"
+    Assert Equals(getline(1), '2025-04-01T00:00:00+09:00')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 25, 0])
+
+    call cursor(1, 9)
+    execute "normal 195\<C-A>"
+    Assert Equals(getline(1), '2025-10-13T00:00:00+09:00')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 25, 0])
+    execute "normal 183\<C-X>"
+    Assert Equals(getline(1), '2025-04-13T00:00:00+09:00')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 25, 0])
+
+    call cursor(1, 12)
+    execute "normal 21\<C-A>"
+    Assert Equals(getline(1), '2025-04-13T21:00:00+09:00')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 25, 0])
+    execute "normal 12\<C-X>"
+    Assert Equals(getline(1), '2025-04-13T09:00:00+09:00')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 25, 0])
+
+    call cursor(1, 15)
+    execute "normal 61\<C-A>"
+    Assert Equals(getline(1), '2025-04-13T10:01:00+09:00')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 25, 0])
+    execute "normal 62\<C-X>"
+    Assert Equals(getline(1), '2025-04-13T08:59:00+09:00')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 25, 0])
+
+    call cursor(1, 18)
+    execute "normal 63\<C-A>"
+    Assert Equals(getline(1), '2025-04-13T09:00:03+09:00')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 25, 0])
+    execute "normal 3\<C-X>"
+    Assert Equals(getline(1), '2025-04-13T09:00:00+09:00')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 25, 0])
+
+    call cursor(1, 20)
+    execute "normal 88\<C-A>"
+    Assert Equals(getline(1), '2025-04-13T09:00:00+04:00')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 25, 0])
+    execute "normal 88\<C-X>"
+    Assert Equals(getline(1), '2025-04-13T09:00:00+09:00')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 25, 0])
+  End
+
+  It increments/decrements '%Y-%m-%d'
+    let b:flap.rules += [flap#datetime#rule('%Y-%m-%d')]
+    call setline(1, '2019-04-30')
+
+    call cursor(1, 1)
+    execute "normal 5\<C-A>"
+    Assert Equals(getline(1), '2024-04-30')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 10, 0])
+    execute "normal 3\<C-X>"
+    Assert Equals(getline(1), '2021-04-30')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 10, 0])
+
+    call cursor(1, 6)
+    execute "normal 34\<C-A>"
+    Assert Equals(getline(1), '2024-02-29')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 10, 0])
+    execute "normal 36\<C-X>"
+    Assert Equals(getline(1), '2021-02-28')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 10, 0])
+
+    call cursor(1, 9)
+    execute "normal 161\<C-A>"
+    Assert Equals(getline(1), '2021-08-08')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 10, 0])
+    execute "normal 16\<C-X>"
+    Assert Equals(getline(1), '2021-07-23')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 10, 0])
+  End
+
+  It increments/decrements 'Windows 10 %y%m'
+    let b:flap.rules += [flap#datetime#rule('Windows 10 %y%m')]
+    call setline(1, 'Windows 10 1709')
+
+    call cursor(1, 12)
+    execute "normal 2\<C-A>"
+    Assert Equals(getline(1), 'Windows 10 1909')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 15, 0])
+    execute "normal \<C-X>"
+    Assert Equals(getline(1), 'Windows 10 1809')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 15, 0])
+
+    call cursor(1, 14)
+    execute "normal 19\<C-A>"
+    Assert Equals(getline(1), 'Windows 10 2004')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 15, 0])
+    execute "normal 7\<C-X>"
+    Assert Equals(getline(1), 'Windows 10 1909')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 15, 0])
+  End
+
   It increments/decrements '%H:%M:%S'
     let b:flap.rules += [flap#datetime#rule('%H:%M:%S')]
     call setline(1, '00:11:22')
