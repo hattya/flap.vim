@@ -1,6 +1,6 @@
 " File:        autoload/flap/datetime.vim
 " Author:      Akinori Hattori <hattya@gmail.com>
-" Last Change: 2020-09-16
+" Last Change: 2020-09-26
 " License:     MIT License
 
 let s:save_cpo = &cpo
@@ -131,7 +131,7 @@ function! s:format(rule, time) abort
     if g[0] ==# ''
       let s .= g[1]
     elseif g[0] =~? 'A'
-      let s .= get(s:, g[0])[(s:julian_day(a:time.Y, a:time.m, a:time.d)+1)%7]
+      let s .= get(s:, g[0])[s:week_day(s:julian_day(a:time.Y, a:time.m, a:time.d))]
     elseif g[0] =~? 'B'
       let s .= get(s:, g[0])[a:time.m-1]
     elseif g[0] ==# 'p'
@@ -180,7 +180,7 @@ function! s:pattern(list) abort
 endfunction
 
 function! s:parse(rule, match) abort
-  let time = {'Y': 0, 'm': 1, 'd': 1, 'H': 0, 'M': 0, 'S': 0}
+  let time = {'H': 0, 'M': 0, 'S': 0}
   let char = ''
 
   let pos = col('.') - 1 - a:match[1]
@@ -196,7 +196,9 @@ function! s:parse(rule, match) abort
 
     let pat = '\V\%(' . g[1] . '\)\ze' . s:pattern(copy(a:rule.groups[i :])) . '\$'
     let m = matchstrpos(a:match[0], pat, j)
-    if g[0] =~? 'B'
+    if g[0] =~? 'A'
+      let time.w = index(get(s:, g[0]), m[0])
+    elseif g[0] =~? 'B'
       let time.m = index(get(s:, g[0]), m[0]) + 1
     elseif g[0] ==# 'p'
       let time.p = m[0]
@@ -220,7 +222,38 @@ function! s:parse(rule, match) abort
       let time.H += 12
     endif
   endif
+
+  if has_key(time, 'w')
+    let w = remove(time, 'w')
+    let t = extend(s:today(), time)
+    if s:week_day(s:julian_day(t.Y, t.m, t.d)) != w
+      if !has_key(time, 'd')
+        let t.d = 7 - s:week_day(s:julian_day(t.Y, t.m, 7)) + w
+      elseif !has_key(time, 'm')
+      elseif !has_key(time, 'Y')
+        while 1
+          let t.Y -= 1
+          let j = s:julian_day(t.Y, t.m, t.d)
+          if s:week_day(j) == w && s:date(j).m == t.m
+            break
+          endif
+        endwhile
+      endif
+    endif
+    let time = t
+  else
+    call extend(time, s:today(), 'keep')
+  endif
   return [time, char]
+endfunction
+
+function! s:today() abort
+  let d = map(split(strftime('%Y %m %d')), 'str2nr(v:val)')
+  return {'Y': d[0], 'm': d[1], 'd': d[2]}
+endfunction
+
+function! s:week_day(j) abort
+  return (a:j + 1) % 7
 endfunction
 
 let &cpo = s:save_cpo

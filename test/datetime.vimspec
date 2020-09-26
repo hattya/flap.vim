@@ -229,6 +229,36 @@ Describe datetime
     Assert Equals(getpos("']"), [0, 1, 15, 0])
   End
 
+  It increments/decrements '%A'
+    let b:flap.rules += [flap#datetime#rule('%A')]
+    call setline(1, 'Wednesday')
+
+    call cursor(1, 1)
+    execute "normal 2\<C-A>"
+    Assert Equals(getline(1), 'Friday')
+    Assert Equals(getpos("'["), [0, 1, 1, 0])
+    Assert Equals(getpos("']"), [0, 1, 6, 0])
+    execute "normal 3\<C-X>"
+    Assert Equals(getline(1), 'Tuesday')
+    Assert Equals(getpos("'["), [0, 1, 1, 0])
+    Assert Equals(getpos("']"), [0, 1, 7, 0])
+  End
+
+  It increments/decrements '%m/%d (%a)'
+    let b:flap.rules += [flap#datetime#rule('%m/%d (%a)')]
+    call setline(1, '05/01 (Wed)')
+
+    call cursor(1, 8)
+    execute "normal 2\<C-A>"
+    Assert Equals(getline(1), '05/03 (Fri)')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 11, 0])
+    execute "normal 3\<C-X>"
+    Assert Equals(getline(1), '04/30 (Tue)')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 11, 0])
+  End
+
   It increments/decrements '%H:%M:%S'
     let b:flap.rules += [flap#datetime#rule('%H:%M:%S')]
     call setline(1, '00:11:22')
