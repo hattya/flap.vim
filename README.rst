@@ -4,6 +4,15 @@ flap.vim
 flap.vim is a Vim plugin to extend ``CTRL-A`` and ``CTRL-X`` by user defined
 rules.
 
+.. image:: https://semaphoreci.com/api/v1/hattya/flap-vim/branches/master/badge.svg
+   :target: https://semaphoreci.com/hattya/flap-vim
+
+.. image:: https://ci.appveyor.com/api/projects/status/moypdj3upgoa051j/branch/master?svg=true
+   :target: https://ci.appveyor.com/project/hattya/flap-vim
+
+.. image:: https://codecov.io/gh/hattya/flap.vim/branch/master/graph/badge.svg
+   :target: https://codecov.io/gh/hattya/flap.vim
+
 .. image:: https://img.shields.io/badge/doc-:h%20flap.txt-blue.svg
    :target: doc/flap.txt
 
