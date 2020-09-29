@@ -1,6 +1,6 @@
 " File:        autoload/flap/datetime.vim
 " Author:      Akinori Hattori <hattya@gmail.com>
-" Last Change: 2020-09-26
+" Last Change: 2020-09-29
 " License:     MIT License
 
 let s:save_cpo = &cpo
@@ -25,7 +25,7 @@ let s:spec = {
 \  'S': '60\|\[ 0-5]\=\d',
 \  'Y': '\d\{4,1}',
 \  'y': '\d\d',
-\  'z': '\[+-]\d\d:\=\d\d',
+\  'z': '\[+-]\d\d:\=\d\d\|Z',
 \}
 let s:dest = {
 \  'A': 'd',
@@ -205,7 +205,7 @@ function! s:parse(rule, match) abort
     elseif g[0] ==# 'y'
       let time.Y = m[0] + (m[0] >= 69 ? 1900 : 2000)
     elseif g[0] ==# 'z'
-      let time.z = [str2nr(m[0][: 2]) * 60 + str2nr(m[0][3 :]), m[0][3 : -3]]
+      let time.z = m[0] ==# 'Z' ? [0, ':'] : [str2nr(m[0][: 2]) * 60 + str2nr(m[0][3 :]), m[0][3 : -3]]
     else
       let time[g[0]] = str2nr(m[0])
     endif

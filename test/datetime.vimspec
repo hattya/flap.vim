@@ -329,6 +329,21 @@ Describe datetime
     Assert Equals(getpos("']"), [0, 1, 8, 0])
   End
 
+  It increments/decrements '%Y-%m-%dT%H:%M:%S%z'
+    let b:flap.rules += [flap#datetime#rule('%Y-%m-%dT%H:%M:%S%z')]
+    call setline(1, '1994-11-05T13:15:30Z')
+
+    call cursor(1, 20)
+    execute "normal 4\<C-A>"
+    Assert Equals(getline(1), '1994-11-05T13:15:30+01:00')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 25, 0])
+    execute "normal 4\<C-X>"
+    Assert Equals(getline(1), '1994-11-05T13:15:30+00:00')
+    Assert Equals(getpos("'["), [0, 1,  1, 0])
+    Assert Equals(getpos("']"), [0, 1, 25, 0])
+  End
+
   It increments/decrements '%Hh %% %Mm %% %Ss'
     let b:flap.rules += [flap#datetime#rule('%Hh %% %Mm %% %Ss')]
     call setline(1, '00h % 00m % 00s')
