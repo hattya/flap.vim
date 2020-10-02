@@ -344,33 +344,33 @@ Describe datetime
     Assert Equals(getpos("']"), [0, 1, 25, 0])
   End
 
-  It increments/decrements '%Hh %% %Mm %% %Ss'
-    let b:flap.rules += [flap#datetime#rule('%Hh %% %Mm %% %Ss')]
+  It increments/decrements '%-Hh %% %0Mm %% %_Ss'
+    let b:flap.rules += [flap#datetime#rule('%-Hh %% %0Mm %% %_Ss')]
     call setline(1, '00h % 00m % 00s')
 
     call cursor(1, 1)
     execute "normal 7\<C-A>"
-    Assert Equals(getline(1), '07h % 00m % 00s')
+    Assert Equals(getline(1), '7h % 00m %  0s')
     Assert Equals(getpos("'["), [0, 1,  1, 0])
-    Assert Equals(getpos("']"), [0, 1, 15, 0])
+    Assert Equals(getpos("']"), [0, 1, 14, 0])
     execute "normal 19\<C-X>"
-    Assert Equals(getline(1), '12h % 00m % 00s')
+    Assert Equals(getline(1), '12h % 00m %  0s')
     Assert Equals(getpos("'["), [0, 1,  1, 0])
     Assert Equals(getpos("']"), [0, 1, 15, 0])
 
     call cursor(1, 5)
     execute "normal 63\<C-A>"
-    Assert Equals(getline(1), '13h % 03m % 00s')
+    Assert Equals(getline(1), '13h % 03m %  0s')
     Assert Equals(getpos("'["), [0, 1,  1, 0])
     Assert Equals(getpos("']"), [0, 1, 15, 0])
     execute "normal 30\<C-X>"
-    Assert Equals(getline(1), '12h % 33m % 00s')
+    Assert Equals(getline(1), '12h % 33m %  0s')
     Assert Equals(getpos("'["), [0, 1,  1, 0])
     Assert Equals(getpos("']"), [0, 1, 15, 0])
 
     call cursor(1, 11)
     execute "normal 67\<C-A>"
-    Assert Equals(getline(1), '12h % 34m % 07s')
+    Assert Equals(getline(1), '12h % 34m %  7s')
     Assert Equals(getpos("'["), [0, 1,  1, 0])
     Assert Equals(getpos("']"), [0, 1, 15, 0])
     execute "normal 46\<C-X>"

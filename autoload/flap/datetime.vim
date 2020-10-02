@@ -1,6 +1,6 @@
 " File:        autoload/flap/datetime.vim
 " Author:      Akinori Hattori <hattya@gmail.com>
-" Last Change: 2020-09-29
+" Last Change: 2020-10-02
 " License:     MIT License
 
 let s:save_cpo = &cpo
@@ -45,7 +45,7 @@ function! flap#datetime#rule(format) abort
   let n = 0
   let i = 0
   while 1
-    let m = matchstrpos(a:format, '%\zs.', i)
+    let m = matchstrpos(a:format, '%\zs[-0_]\=.', i)
     if m[0] ==# ''
       if i < len(a:format)
         let g += [['', s:escape(a:format[i :])]]
@@ -55,10 +55,17 @@ function! flap#datetime#rule(format) abort
       let g += [['', s:escape(a:format[i : m[1]-2])]]
     endif
 
-    if has_key(s:spec, m[0])
-      let g += [[m[0], s:spec[m[0]]]]
+    if m[2] - m[1] == 2
+      let f = m[0][0]
+      let s = m[0][1]
+    else
+      let f = '0'
+      let s = m[0]
+    endif
+    if has_key(s:spec, s)
+      let g += [[s, s:spec[s], f]]
       let n += 1
-    elseif m[0] ==# '%'
+    elseif s ==# '%'
       let g += [['', '%']]
     else
       throw printf("flap: datetime: unknown specifier '%%%s'", m[0])
@@ -152,7 +159,7 @@ function! s:format(rule, time) abort
       elseif g[0] ==# 'y'
         let a:time.y = a:time.Y % 100
       endif
-      let s .= printf('%0*d', g[0] ==# 'Y' ? 0 : 2, a:time[g[0]])
+      let s .= printf(g[2] ==# '0' ? '%0*d' : '%*d', g[0] ==# 'Y' || g[2] ==# '-' ? 0 : 2, a:time[g[0]])
     endif
   endfor
   return s
