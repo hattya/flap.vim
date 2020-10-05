@@ -1,6 +1,6 @@
 " File:        autoload/flap/datetime.vim
 " Author:      Akinori Hattori <hattya@gmail.com>
-" Last Change: 2020-10-02
+" Last Change: 2020-10-05
 " License:     MIT License
 
 let s:save_cpo = &cpo
@@ -64,6 +64,13 @@ function! flap#datetime#rule(format) abort
     endif
     if has_key(s:spec, s)
       let g += [[s, s:spec[s], f]]
+      let n += 1
+    elseif s ==# '['
+      let m = matchstrpos(a:format, '\^\=]\=.\{-}]', m[2])
+      if m[0] ==# ''
+        throw "flap: datetime: ']' not found while parsing '%['"
+      endif
+      let g += [[s, '\[' . m[0]]]
       let n += 1
     elseif s ==# '%'
       let g += [['', '%']]
@@ -134,6 +141,7 @@ endfunction
 
 function! s:format(rule, time) abort
   let s = ''
+  let i = 0
   for g in a:rule.groups
     if g[0] ==# ''
       let s .= g[1]
@@ -152,6 +160,9 @@ function! s:format(rule, time) abort
         let sign = '+'
       endif
       let s .= printf('%s%02d%s%02d', sign, z / 60, sep, z % 60)
+    elseif g[0] ==# '['
+      let s .= a:time._[i]
+      let i += 1
     else
       if g[0] ==# 'I'
         let I = a:time.H % 12
@@ -187,7 +198,7 @@ function! s:pattern(list) abort
 endfunction
 
 function! s:parse(rule, match) abort
-  let time = {'H': 0, 'M': 0, 'S': 0}
+  let time = {'H': 0, 'M': 0, 'S': 0, '_': []}
   let char = ''
 
   let pos = col('.') - 1 - a:match[1]
@@ -213,6 +224,8 @@ function! s:parse(rule, match) abort
       let time.Y = m[0] + (m[0] >= 69 ? 1900 : 2000)
     elseif g[0] ==# 'z'
       let time.z = m[0] ==# 'Z' ? [0, ':'] : [str2nr(m[0][: 2]) * 60 + str2nr(m[0][3 :]), m[0][3 : -3]]
+    elseif g[0] ==# '['
+      let time._ += [m[0]]
     else
       let time[g[0]] = str2nr(m[0])
     endif

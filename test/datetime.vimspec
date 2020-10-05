@@ -94,8 +94,8 @@ Describe datetime
     Assert Equals(getpos("']"), [0, 1, 31, 0])
   End
 
-  It increments/decrements '%Y-%m-%dT%H:%M:%S%z'
-    let b:flap.rules += [flap#datetime#rule('%Y-%m-%dT%H:%M:%S%z')]
+  It increments/decrements '%Y-%m-%d%[ T]%H:%M:%S%z'
+    let b:flap.rules += [flap#datetime#rule('%Y-%m-%d%[ T]%H:%M:%S%z')]
     call setline(1, '2019-05-01T00:00:00+09:00')
 
     call cursor(1, 1)
@@ -381,5 +381,6 @@ Describe datetime
 
   It throws an exception when the specified format is invalid
     Throws /^flap: datetime:.*'%!'$/ flap#datetime#rule('%!')
+    Throws /^flap: datetime:.*'%['$/ flap#datetime#rule('%[')
   End
 End
