@@ -131,7 +131,8 @@ Describe CTRL-A
   It throws an exception when a rule is invalid
     let b:flap.rules += [[0]]
 
-    Throws /^invalid rule: / :execute "normal \<C-A>"
+    execute "normal \<C-A>"
+    Assert Equals(split(execute('messages'), '\n')[-1], 'flap: invalid rule: [0]')
   End
 End
 
@@ -337,6 +338,27 @@ Describe {Visual}CTRL-A
     Assert Equals(getpos("'["), [0, 1, 5, 0])
     Assert Equals(getpos("']"), [0, 2, 7, 0])
   End
+
+  It throws an exception when a rule is invalid in v
+    let b:flap.rules += [[0]]
+
+    execute "normal v$\<C-A>"
+    Assert Equals(split(execute('messages'), '\n')[-1], 'flap: invalid rule: [0]')
+  End
+
+  It throws an exception when a rule is invalid in V
+    let b:flap.rules += [[0]]
+
+    execute "normal V\<C-A>"
+    Assert Equals(split(execute('messages'), '\n')[-1], 'flap: invalid rule: [0]')
+  End
+
+  It throws an exception when a rule is invalid in V
+    let b:flap.rules += [[0]]
+
+    execute "normal \<C-V>$\<C-A>"
+    Assert Equals(split(execute('messages'), '\n')[-1], 'flap: invalid rule: [0]')
+  End
 End
 
 Describe {Visual}g CTRL-A
@@ -504,7 +526,8 @@ Describe CTRL-X
   It throws an exception when a rule is invalid
     let b:flap.rules += [[0]]
 
-    Throws /^invalid rule: / :execute "normal \<C-X>"
+    execute "normal \<C-X>"
+    Assert Equals(split(execute('messages'), '\n')[-1], 'flap: invalid rule: [0]')
   End
 End
 
@@ -709,6 +732,27 @@ Describe {Visual}CTRL-X
     Assert Equals(getpos('.'),  [0, 1, 5, 0])
     Assert Equals(getpos("'["), [0, 1, 5, 0])
     Assert Equals(getpos("']"), [0, 2, 7, 0])
+  End
+
+  It throws an exception when a rule is invalid in v
+    let b:flap.rules += [[0]]
+
+    execute "normal v$\<C-X>"
+    Assert Equals(split(execute('messages'), '\n')[-1], 'flap: invalid rule: [0]')
+  End
+
+  It throws an exception when a rule is invalid in V
+    let b:flap.rules += [[0]]
+
+    execute "normal V\<C-X>"
+    Assert Equals(split(execute('messages'), '\n')[-1], 'flap: invalid rule: [0]')
+  End
+
+  It throws an exception when a rule is invalid in V
+    let b:flap.rules += [[0]]
+
+    execute "normal \<C-V>$\<C-X>"
+    Assert Equals(split(execute('messages'), '\n')[-1], 'flap: invalid rule: [0]')
   End
 End
 

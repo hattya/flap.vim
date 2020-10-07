@@ -1,6 +1,6 @@
 " File:        autoload/flap.vim
 " Author:      Akinori Hattori <hattya@gmail.com>
-" Last Change: 2019-11-04
+" Last Change: 2020-10-07
 " License:     MIT License
 
 let s:save_cpo = &cpo
@@ -8,18 +8,15 @@ set cpo&vim
 
 let s:greedy = 0
 
-function! flap#ninc(count) abort
-  return s:nflap(a:count)
-endfunction
+function! flap#nflap(count) abort
+  try
+    let s:greedy = 0
+    let l = getline('.')
+    let best = s:best_match(l, s:rules(), col('.') - 1, len(l))
+  catch
+    return s:error(v:exception)
+  endtry
 
-function! flap#ndec(count) abort
-  return s:nflap(-a:count)
-endfunction
-
-function! s:nflap(count) abort
-  let s:greedy = 0
-  let l = getline('.')
-  let best = s:best_match(l, s:rules(), col('.') - 1, len(l))
   if !empty(best.match)
     let v = s:setline('.', l, best, a:count)
     call setpos("'[", [0, line('.'), best.match[1] + 1, 0])
@@ -29,55 +26,37 @@ function! s:nflap(count) abort
   endif
 endfunction
 
-function! flap#vinc(count, g) abort
-  return s:vflap(a:count, a:g)
-endfunction
-
-function! flap#vdec(count, g) abort
-  return s:vflap(-a:count, a:g)
-endfunction
-
-function! s:vflap(count, g) abort
+function! flap#vflap(count, g) abort
   normal! gv
   let lhs = getpos("'<")
   let rhs = getpos("'>")
 
-  let rules = s:rules()
-  let cl = {}
-  let lnum = lhs[1]
-  let start = lhs[2] - 1
-  let end = &selection ==# 'exclusive' ? rhs[2] - 1 : rhs[2]
-  if mode() ==# 'v'
-    if start < end
-      let s:greedy = 0
-      while lnum < rhs[1]
+  try
+    let rules = s:rules()
+    let cl = {}
+    let lnum = lhs[1]
+    let start = lhs[2] - 1
+    let end = &selection ==# 'exclusive' ? rhs[2] - 1 : rhs[2]
+    if mode() ==# 'v'
+      if start < end
+        let s:greedy = 0
+        while lnum < rhs[1]
+          let l = getline(lnum)
+          let best = s:best_match(l, rules, start, len(l))
+          if !empty(best.match)
+            let cl[lnum] = [l, best]
+          endif
+          let lnum += 1
+          let start = 0
+        endwhile
         let l = getline(lnum)
-        let best = s:best_match(l, rules, start, len(l))
+        let best = s:best_match(l, rules, start, end)
         if !empty(best.match)
           let cl[lnum] = [l, best]
         endif
-        let lnum += 1
-        let start = 0
-      endwhile
-      let l = getline(lnum)
-      let best = s:best_match(l, rules, start, end)
-      if !empty(best.match)
-        let cl[lnum] = [l, best]
       endif
-    endif
-  elseif mode() ==# 'V'
-    let s:greedy = 0
-    while lnum <= rhs[1]
-      let l = getline(lnum)
-      let best = s:best_match(l, rules, start, end)
-      if !empty(best.match)
-        let cl[lnum] = [l, best]
-      endif
-      let lnum += 1
-    endwhile
-  elseif mode() ==# "\<C-V>"
-    if start < end
-      let s:greedy = 1
+    elseif mode() ==# 'V'
+      let s:greedy = 0
       while lnum <= rhs[1]
         let l = getline(lnum)
         let best = s:best_match(l, rules, start, end)
@@ -86,8 +65,22 @@ function! s:vflap(count, g) abort
         endif
         let lnum += 1
       endwhile
+    elseif mode() ==# "\<C-V>"
+      if start < end
+        let s:greedy = 1
+        while lnum <= rhs[1]
+          let l = getline(lnum)
+          let best = s:best_match(l, rules, start, end)
+          if !empty(best.match)
+            let cl[lnum] = [l, best]
+          endif
+          let lnum += 1
+        endwhile
+      endif
     endif
-  endif
+  catch
+    return s:error(v:exception)
+  endtry
 
   let key = a:count >= 0 ? "\<C-A>" : "\<C-X>"
   if !empty(cl)
@@ -209,6 +202,13 @@ function! s:cmp(a, b) abort
     let v = a:a[2] - a:b[2]
   endif
   return s:greedy ? -v : v
+endfunction
+
+function! s:error(msg) abort
+  redraw
+  echohl ErrorMsg
+  echomsg 'flap: ' . a:msg
+  echohl None
 endfunction
 
 function! s:setline(lnum, s, best, count) abort
