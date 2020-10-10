@@ -47,6 +47,13 @@ Requirements
 ------------
 
 - Vim 8.0+
+- repeat.vim
+
+  - `kana/vim-repeat`_
+  - `tpope/vim-repeat`_
+
+.. _kana/vim-repeat: https://github.com/kana/vim-repeat
+.. _tpope/vim-repeat: https://github.com/tpope/vim-repeat
 
 
 Usage
