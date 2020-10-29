@@ -1,0 +1,147 @@
+function! CaseTests(...) abort
+  let list = map(copy(a:000), 'toupper(strcharpart(v:val, 0, 1)) . tolower(strcharpart(v:val, 1))')
+  return [
+  \  ['camel',           tolower(list[0]) . join(list[1 :], '')],
+  \  ['camel',           tolower(list[0]) . join(list[1 : -2], '') . toupper(list[-1])],
+  \  ['pascal',          join(list, '')],
+  \  ['pascal',          toupper(list[0]) . join(list[1 :], '')],
+  \  ['snake',           tolower(join(list, '_'))],
+  \  ['screaming_snake', toupper(join(list, '_'))],
+  \  ['kebab',           tolower(join(list, '-'))],
+  \  ['cobol',           toupper(join(list, '-'))],
+  \  ['http_header',     join(list, '-')],
+  \]
+endfunction
+
+Describe string
+  Before each
+    new
+    let b:flap = {
+    \  'rules': [],
+    \}
+    nmap <buffer> <C-A> <Plug>(flap-inc)
+    nmap <buffer> <C-X> <Plug>(flap-dec)
+    only!
+  End
+
+  Describe #case
+    It converts to camelCase
+      for [sty, s] in CaseTests('camel', 'Case')
+        let b:flap.rules = [flap#string#case(sty, 'camel')]
+        call setline(1, s)
+
+        call cursor(1, 1)
+        execute "normal \<C-A>"
+        Assert Equals(getline(1), 'camelCase')
+        Assert Equals(getpos("'["), [0, 1, 1, 0])
+        Assert Equals(getpos("']"), [0, 1, 9, 0])
+      endfor
+    End
+
+    It converts to PascalCase
+      for [sty, s] in CaseTests('Pascal', 'Case') 
+        let b:flap.rules = [flap#string#case(sty, 'pascal')]
+        call setline(1, s)
+
+        call cursor(1, 1)
+        execute "normal \<C-A>"
+        Assert Equals(getline(1), 'PascalCase')
+        Assert Equals(getpos("'["), [0, 1,  1, 0])
+        Assert Equals(getpos("']"), [0, 1, 10, 0])
+      endfor
+    End
+
+    It converts to snake_case
+      for [sty, s] in CaseTests('snake', 'case')
+        let b:flap.rules = [flap#string#case(sty, 'snake')]
+        call setline(1, s)
+
+        call cursor(1, 1)
+        execute "normal \<C-A>"
+        Assert Equals(getline(1), 'snake_case')
+        Assert Equals(getpos("'["), [0, 1,  1, 0])
+        Assert Equals(getpos("']"), [0, 1, 10, 0])
+      endfor
+    End
+
+    It converts to SCREAMING_SNAKE_CASE
+      for [sty, s] in CaseTests('SCREAMING', 'SNAKE', 'CASE')
+        let b:flap.rules = [flap#string#case(sty, 'screaming snake')]
+        call setline(1, s)
+
+        call cursor(1, 1)
+        execute "normal \<C-A>"
+        Assert Equals(getline(1), 'SCREAMING_SNAKE_CASE')
+        Assert Equals(getpos("'["), [0, 1,  1, 0])
+        Assert Equals(getpos("']"), [0, 1, 20, 0])
+      endfor
+    End
+
+    It converts to kebab-case
+      for [sty, s] in CaseTests('kebab', 'case')
+        let b:flap.rules = [flap#string#case(sty, 'kebab')]
+        call setline(1, s)
+
+        call cursor(1, 1)
+        execute "normal \<C-A>"
+        Assert Equals(getline(1), 'kebab-case')
+        Assert Equals(getpos("'["), [0, 1,  1, 0])
+        Assert Equals(getpos("']"), [0, 1, 10, 0])
+      endfor
+    End
+
+    It converts to COBOL-CASE
+      for [sty, s] in CaseTests('COBOL', 'CASE')
+        let b:flap.rules = [flap#string#case(sty, 'cobol')]
+        call setline(1, s)
+
+        call cursor(1, 1)
+        execute "normal \<C-A>"
+        Assert Equals(getline(1), 'COBOL-CASE')
+        Assert Equals(getpos("'["), [0, 1,  1, 0])
+        Assert Equals(getpos("']"), [0, 1, 10, 0])
+      endfor
+    End
+
+    It converts to HTTP-Header-Case
+      for [sty, s] in CaseTests('HTTP', 'Header', 'Case')
+        let b:flap.rules = [flap#string#case(sty, 'http header')]
+        call setline(1, s)
+
+        call cursor(1, 1)
+        execute "normal \<C-A>"
+        Assert Equals(getline(1), 'Http-Header-Case')
+        Assert Equals(getpos("'["), [0, 1,  1, 0])
+        Assert Equals(getpos("']"), [0, 1, 16, 0])
+      endfor
+    End
+
+    It converts case styles
+      let styles = [
+      \  ['camel',           'caseStyle'],
+      \  ['pascal',          'CaseStyle'],
+      \  ['snake',           'case_style'],
+      \  ['screaming_snake', 'CASE_STYLE'],
+      \  ['kebab',           'case-style'],
+      \  ['cobol',           'CASE-STYLE'],
+      \  ['http_header',     'Case-Style'],
+      \]
+      let b:flap.rules += [call('flap#string#case', map(copy(styles), 'v:val[0]'))]
+      call setline(1, styles[0][1])
+
+      for s in map(copy(styles), 'v:val[1]')[1 :]
+        execute "normal \<C-A>"
+        Assert Equals(getline(1), s)
+        Assert Equals(getpos("'["), [0, 1,      1, 0])
+        Assert Equals(getpos("']"), [0, 1, len(s), 0])
+      endfor
+
+      for s in reverse(map(copy(styles), 'v:val[1]'))[1 :]
+        execute "normal \<C-X>"
+        Assert Equals(getline(1), s)
+        Assert Equals(getpos("'["), [0, 1,      1, 0])
+        Assert Equals(getpos("']"), [0, 1, len(s), 0])
+      endfor
+    End
+  End
+End
