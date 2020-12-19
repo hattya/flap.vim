@@ -1,6 +1,6 @@
 " File:        autoload/flap.vim
 " Author:      Akinori Hattori <hattya@gmail.com>
-" Last Change: 2020-10-10
+" Last Change: 2020-12-19
 " License:     MIT License
 
 let s:save_cpo = &cpo
@@ -28,7 +28,7 @@ function! flap#nflap(count) abort
 endfunction
 
 function! flap#vflap(count, g) abort
-  normal! gv
+  let mode = visualmode(1)
   let lhs = getpos("'<")
   let rhs = getpos("'>")
 
@@ -38,7 +38,7 @@ function! flap#vflap(count, g) abort
     let lnum = lhs[1]
     let start = lhs[2] - 1
     let end = &selection ==# 'exclusive' ? rhs[2] - 1 : rhs[2]
-    if mode() ==# 'v'
+    if mode ==# 'v'
       if start < end
         let s:greedy = 0
         while lnum < rhs[1]
@@ -56,7 +56,7 @@ function! flap#vflap(count, g) abort
           let cl[lnum] = [l, best]
         endif
       endif
-    elseif mode() ==# 'V'
+    elseif mode ==# 'V'
       let s:greedy = 0
       while lnum <= rhs[1]
         let l = getline(lnum)
@@ -66,7 +66,7 @@ function! flap#vflap(count, g) abort
         endif
         let lnum += 1
       endwhile
-    elseif mode() ==# "\<C-V>"
+    elseif mode ==# "\<C-V>"
       if start < end
         let s:greedy = 1
         while lnum <= rhs[1]
@@ -84,11 +84,9 @@ function! flap#vflap(count, g) abort
   endtry
 
   let key = a:count >= 0 ? "\<C-A>" : "\<C-X>"
-  let mode = mode()
   if !empty(cl)
     " save
-    let visual = [mode(), getpos("'<"), getpos("'>")]
-    execute "normal! \<Esc>"
+    let visual = [mode, getpos("'<"), getpos("'>")]
 
     call setpos("']", repeat([0], 4))
     let lnum = lhs[1]
