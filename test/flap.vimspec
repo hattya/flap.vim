@@ -339,6 +339,45 @@ Describe {Visual}CTRL-A
     Assert Equals(getpos("']"), [0, 2, 7, 0])
   End
 
+  It falls back to default in v
+    call setline(1, ' 1 1 1')
+    call setline(2, '010101')
+
+    call cursor(1, 3)
+    execute "normal vG$\<C-A>"
+    Assert Equals(getline(1), ' 1 2 1')
+    Assert Equals(getline(2), '010102')
+    Assert Equals(getpos('.'),  [0, 1, 3, 0])
+    Assert Equals(getpos("'["), [0, 1, 4, 0])
+    Assert Equals(getpos("']"), [0, 2, 6, 0])
+  End
+
+  It falls back to default in V
+    call setline(1, ' 1 1 1')
+    call setline(2, '010101')
+
+    call cursor(1, 3)
+    execute "normal VG\<C-A>"
+    Assert Equals(getline(1), ' 2 1 1')
+    Assert Equals(getline(2), '010102')
+    Assert Equals(getpos('.'),  [0, 1, 1, 0])
+    Assert Equals(getpos("'["), [0, 1, 2, 0])
+    Assert Equals(getpos("']"), [0, 2, 6, 0])
+  End
+
+  It falls back to default in CTRL-V
+    call setline(1, ' 1 1 1')
+    call setline(2, '010101')
+
+    call cursor(1, 3)
+    execute "normal \<C-V>lj\<C-A>"
+    Assert Equals(getline(1), ' 1 2 1')
+    Assert Equals(getline(2), '010201')
+    Assert Equals(getpos('.'),  [0, 1, 3, 0])
+    Assert Equals(getpos("'["), [0, 1, 4, 0])
+    Assert Equals(getpos("']"), [0, 2, 4, 0])
+  End
+
   It throws an exception when a rule is invalid in v
     let b:flap.rules += [[0]]
 
@@ -409,6 +448,45 @@ Describe {Visual}g CTRL-A
     Assert Equals(visualmode(), "\<C-V>")
     Assert Equals(getpos("'<"), [0, 1, 1, 0])
     Assert Equals(getpos("'>"), [0, 5, 4, 0])
+  End
+
+  It falls back to default in v
+    call setline(1, ' 1 1 1')
+    call setline(2, '010101')
+
+    call cursor(1, 3)
+    execute "normal vG$g\<C-A>"
+    Assert Equal(getline(1), ' 1 2 1')
+    Assert Equal(getline(2), '010103')
+    Assert Equals(getpos('.'),  [0, 1, 3, 0])
+    Assert Equals(getpos("'["), [0, 1, 4, 0])
+    Assert Equals(getpos("']"), [0, 2, 6, 0])
+  End
+
+  It falls back to default in V
+    call setline(1, ' 1 1 1')
+    call setline(2, '010101')
+
+    call cursor(1, 3)
+    execute "normal VGg\<C-A>"
+    Assert Equal(getline(1), ' 2 1 1')
+    Assert Equal(getline(2), '010103')
+    Assert Equals(getpos('.'),  [0, 1, 1, 0])
+    Assert Equals(getpos("'["), [0, 1, 2, 0])
+    Assert Equals(getpos("']"), [0, 2, 6, 0])
+  End
+
+  It falls back to default in CTRL-V
+    call setline(1, ' 1 1 1')
+    call setline(2, '010101')
+
+    call cursor(1, 3)
+    execute "normal \<C-V>ljg\<C-A>"
+    Assert Equal(getline(1), ' 1 2 1')
+    Assert Equal(getline(2), '010301')
+    Assert Equals(getpos('.'),  [0, 1, 3, 0])
+    Assert Equals(getpos("'["), [0, 1, 4, 0])
+    Assert Equals(getpos("']"), [0, 2, 4, 0])
   End
 End
 
@@ -734,6 +812,45 @@ Describe {Visual}CTRL-X
     Assert Equals(getpos("']"), [0, 2, 7, 0])
   End
 
+  It falls back to default in v
+    call setline(1, ' 3 3 3')
+    call setline(2, '030303')
+
+    call cursor(1, 3)
+    execute "normal vG$\<C-X>"
+    Assert Equals(getline(1), ' 3 2 3')
+    Assert Equals(getline(2), '030302')
+    Assert Equals(getpos('.'),  [0, 1, 3, 0])
+    Assert Equals(getpos("'["), [0, 1, 4, 0])
+    Assert Equals(getpos("']"), [0, 2, 6, 0])
+  End
+
+  It falls back to default in V
+    call setline(1, ' 3 3 3')
+    call setline(2, '030303')
+
+    call cursor(1, 3)
+    execute "normal VG\<C-X>"
+    Assert Equals(getline(1), ' 2 3 3')
+    Assert Equals(getline(2), '030302')
+    Assert Equals(getpos('.'),  [0, 1, 1, 0])
+    Assert Equals(getpos("'["), [0, 1, 2, 0])
+    Assert Equals(getpos("']"), [0, 2, 6, 0])
+  End
+
+  It falls back to default in CTRL-V
+    call setline(1, ' 3 3 3')
+    call setline(2, '030303')
+
+    call cursor(1, 3)
+    execute "normal \<C-V>lj\<C-X>"
+    Assert Equals(getline(1), ' 3 2 3')
+    Assert Equals(getline(2), '030203')
+    Assert Equals(getpos('.'),  [0, 1, 3, 0])
+    Assert Equals(getpos("'["), [0, 1, 4, 0])
+    Assert Equals(getpos("']"), [0, 2, 4, 0])
+  End
+
   It throws an exception when a rule is invalid in v
     let b:flap.rules += [[0]]
 
@@ -804,5 +921,44 @@ Describe {Visual}g CTRL-X
     Assert Equals(visualmode(), "\<C-V>")
     Assert Equals(getpos("'<"), [0, 1, 1, 0])
     Assert Equals(getpos("'>"), [0, 5, 4, 0])
+  End
+
+  It falls back to default in v
+    call setline(1, ' 3 3 3')
+    call setline(2, '030303')
+
+    call cursor(1, 3)
+    execute "normal vG$g\<C-X>"
+    Assert Equal(getline(1), ' 3 2 3')
+    Assert Equal(getline(2), '030301')
+    Assert Equals(getpos('.'),  [0, 1, 3, 0])
+    Assert Equals(getpos("'["), [0, 1, 4, 0])
+    Assert Equals(getpos("']"), [0, 2, 6, 0])
+  End
+
+  It falls back to default in V
+    call setline(1, ' 3 3 3')
+    call setline(2, '030303')
+
+    call cursor(1, 3)
+    execute "normal VGg\<C-X>"
+    Assert Equal(getline(1), ' 2 3 3')
+    Assert Equal(getline(2), '030301')
+    Assert Equals(getpos('.'),  [0, 1, 1, 0])
+    Assert Equals(getpos("'["), [0, 1, 2, 0])
+    Assert Equals(getpos("']"), [0, 2, 6, 0])
+  End
+
+  It falls back to default in CTRL-V
+    call setline(1, ' 3 3 3')
+    call setline(2, '030303')
+
+    call cursor(1, 3)
+    execute "normal \<C-V>ljg\<C-X>"
+    Assert Equal(getline(1), ' 3 2 3')
+    Assert Equal(getline(2), '030103')
+    Assert Equals(getpos('.'),  [0, 1, 3, 0])
+    Assert Equals(getpos("'["), [0, 1, 4, 0])
+    Assert Equals(getpos("']"), [0, 2, 4, 0])
   End
 End

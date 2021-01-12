@@ -1,6 +1,6 @@
 " File:        autoload/flap.vim
 " Author:      Akinori Hattori <hattya@gmail.com>
-" Last Change: 2020-12-19
+" Last Change: 2021-01-12
 " License:     MIT License
 
 let s:save_cpo = &cpo
@@ -118,7 +118,7 @@ function! flap#vflap(count, g) abort
     call setpos("'<", visual[1])
     call setpos("'>", visual[2])
   else
-    execute printf('normal! %d%s%s', abs(a:count), a:g ? 'g' : '', key)
+    execute printf('normal! gv%d%s%s', abs(a:count), a:g ? 'g' : '', key)
   endif
   silent! call repeat#set(printf("%s%s\<Plug>(flap-%s)", mode, a:g ? 'g' : '', a:count >= 0 ? 'inc' : 'dec'), abs(a:count))
 endfunction
