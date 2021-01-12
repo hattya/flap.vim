@@ -120,7 +120,7 @@ function! flap#vflap(count, g) abort
   else
     execute printf('normal! gv%d%s%s', abs(a:count), a:g ? 'g' : '', key)
   endif
-  silent! call repeat#set(printf("%s%s\<Plug>(flap-%s)", mode, a:g ? 'g' : '', a:count >= 0 ? 'inc' : 'dec'), abs(a:count))
+  silent! call repeat#set(printf("%s%d%s\<Plug>(flap-%s)", mode, abs(a:count), a:g ? 'g' : '', a:count >= 0 ? 'inc' : 'dec'), 1)
 endfunction
 
 function! s:rules() abort
