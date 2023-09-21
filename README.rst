@@ -7,9 +7,6 @@ rules.
 .. image:: https://github.com/hattya/flap.vim/actions/workflows/ci.yml/badge.svg
    :target: https://github.com/hattya/flap.vim/actions/workflows/ci.yml
 
-.. image:: https://semaphoreci.com/api/v1/hattya/flap-vim/branches/master/badge.svg
-   :target: https://semaphoreci.com/hattya/flap-vim
-
 .. image:: https://ci.appveyor.com/api/projects/status/moypdj3upgoa051j/branch/master?svg=true
    :target: https://ci.appveyor.com/project/hattya/flap-vim
 
